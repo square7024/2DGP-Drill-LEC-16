@@ -149,6 +149,23 @@ class Zombie:
             return BehaviorTree.FAIL
 
 
+    def move_little_to_minus(self, tx, ty):
+        # frame_time 을 이용해서 이동거리 계산.
+        distance = RUN_SPEED_PPS * game_framework.frame_time
+        self.dir = math.atan2(ty - self.y, tx - self.x)  # 각도 구하기
+        self.x -= distance * math.cos(self.dir)
+        self.y -= distance * math.sin(self.dir)
+
+
+    def run_away_from_boy(self, r):
+        self.state = 'Walk'
+        self.move_little_to_minus(common.boy.x, common.boy.y)
+        if self.distance_less_than(common.boy.x, common.boy.y, self.x, self.y, r):
+            return BehaviorTree.SUCCESS
+        else:
+            return BehaviorTree.RUNNING
+
+
     def build_behavior_tree(self):
         # 목표 지점(1000, 1000)을 설정하는 액션 노드를 생성.
         a1 = Action('Set Target Location', self.set_target_location, 500, 50)
@@ -170,8 +187,14 @@ class Zombie:
         chase_if_boy_near_or_patrol = Selector('소년이 가까이 있으면 추적 아니면 순찰', chase_boy, patrol)
 
         c2 = Condition('소년보다 공이 많거나 같은가?', self.if_have_more_balls)
-        if_zombie_more_balls = Sequence('소년보다 공이 많거나 같은면 추적', c2, chase_if_boy_near_or_patrol)
-        root = chase_or_wander = Selector('소년보다 공이 많거나 같으면 추적 아니면 순찰', if_zombie_more_balls, wander)
+        chase_if_more_balls = Sequence('소년보다 공이 많거나 같으면 추적하기', c2, a4)
+
+        a6 = Action('소년으로부터 도망가기', self.run_away_from_boy, 0.5)
+        chase_or_run_away = Selector('추적하거나 도망가기', chase_if_more_balls, a6)
+
+        chase_boy2 = Sequence('소년이 가까이 있으면 소년을 추적', c1, chase_or_run_away)
+
+        root = chase_or_wander = Selector('루트', chase_boy2, wander)
 
         self.bt = BehaviorTree(root)
 
