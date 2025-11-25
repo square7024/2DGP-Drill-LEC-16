@@ -1,4 +1,4 @@
-from pico2d import load_image, load_font, draw_rectangle
+from pico2d import load_image, load_font, draw_rectangle, draw_circle
 from sdl2 import SDL_KEYDOWN, SDLK_SPACE, SDLK_RIGHT, SDL_KEYUP, SDLK_LEFT, SDLK_UP, SDLK_DOWN
 
 import game_world
@@ -140,6 +140,7 @@ class Boy:
         self.state_machine.draw()
         self.font.draw(self.x-10, self.y + 50, f'{self.ball_count:02d}', (255, 255, 0))
         # draw_rectangle(*self.get_bb())
+
 
     def fire_ball(self):
         if self.ball_count > 0:
