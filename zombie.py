@@ -81,7 +81,7 @@ class Zombie:
 
 
     def set_target_location(self, x=None, y=None):
-        if x is not None or y is not None:
+        if x is None or y is None:
             raise ValueError('목적위치가 설정되어야 합니다.')
         self.tx, self.ty = x, y
         return BehaviorTree.SUCCESS
@@ -104,7 +104,7 @@ class Zombie:
     def move_to(self, r=0.5):
         self.state = 'Walk' # 디버그 출력
         self.move_little_to(self.tx, self.ty) # 목적지로 조금 이동
-        if self.distance_less_than(self.tx, self.ty, self.tx, self.ty, r):
+        if self.distance_less_than(self.x, self.y, self.tx, self.ty, r):
             return BehaviorTree.SUCCESS
         else:
             return BehaviorTree.RUNNING
